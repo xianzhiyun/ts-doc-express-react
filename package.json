@@ -1,0 +1,24 @@
+{
+  "name": "ts-doc-express-react",
+  "version": "1.0.0",
+  "description": "'# Hello VuePress!'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "doc": "vuepress dev ./",
+    "docs-build": "vuepress build ./",
+    "type": "git",
+    "url": "git+https://github.com/OliverWeb/ts-doc-express-react.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OliverWeb/ts-doc-express-react/issues"
+  },
+  "homepage": "https://github.com/OliverWeb/ts-doc-express-react#readme",
+  "devDependencies": {
+    "vuepress": "^1.3.1"
+  }
+}
