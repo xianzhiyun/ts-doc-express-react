@@ -1,5 +1,5 @@
 module.exports = {
-    base: '/vt-ui/',
+    base: '/ts-dox/',
     dest: 'dist',
     title: 'TypeScript 学习文档',
     description: '爬虫、express + TypeScript',
@@ -10,14 +10,15 @@ module.exports = {
     themeConfig: {
         editLinks: false,
         nav: [],
-        docsDir: 'packages',
+        docsDir: 'docs',
         sidebar: [
             {
                 title: '指南',
                 collapsable: false,
                 children: [
                     ['docs/', '简介'],
-                    'docs/start'
+                    'docs/start',
+                    'docs/basic/'
                 ]
             },
         ],

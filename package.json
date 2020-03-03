@@ -4,11 +4,11 @@
   "description": "'# Hello VuePress!'",
   "main": "index.js",
   "scripts": {
+    "doc": "vuepress dev ./",
+    "docs-build": "vuepress build ./",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "doc": "vuepress dev ./",
-    "docs-build": "vuepress build ./",
     "type": "git",
     "url": "git+https://github.com/OliverWeb/ts-doc-express-react.git"
   },
