@@ -1,24 +1,14 @@
 import superagent from 'superagent'
-import cheerio from 'cheerio'
+
 import fs from 'fs'
 import path from 'path'
+import WebAnalyzer from './webAnalyzer'
 
-interface Course {
-    title: string,
-    per: string
-}
-
-interface CourseResult {
-    time: number,
-    data: Course[]
-}
-
-interface Content {
-    [propName:number]:Course[]
+export interface Analyzer {
+    analyze: (html: string, filePath: string) => string
 }
 class Crowller {
-    private url = 'https://www.zhuwang.cc/';
-    private rawHtml = '';
+    private filePath = path.resolve(__dirname, '../data/course.json')
 
     async getRawHtml() {
         const result = await superagent.get(this.url).set({
@@ -27,45 +17,20 @@ class Crowller {
         return result.text
     }
 
-    getCourseInfo(html: string) {
-        let courseInfos: Course[] = [];
-        const $ = cheerio.load(html)
-        const courseItems = $('.chart_nav>ul>li')
-        console.log(courseItems.length)
-        courseItems.map((index, element) => {
-            const title = $(element).find('li>p').eq(0).text();
-            const per = $(element).find('li>div').eq(0).text();
-            courseInfos.push({
-                title,
-                per
-            })
-        })
-        return {
-            time: new Date().getTime(),
-            data: courseInfos
-        }
-    }
-
-    generateJsonContent(courseInfo: CourseResult) {
-        let fileContent:Content = {}
-        const filePath = path.resolve(__dirname,'../data/course.json')
-        if (fs.existsSync(filePath)) {
-            fileContent = JSON.parse(fs.readFileSync(filePath,'utf-8'))
-        }
-        return  fileContent[courseInfo.time] = courseInfo.data
-    }
 
     async initSpiderProcess() {
-        const filePath = path.resolve(__dirname,'../data/course.json')
         const html = await this.getRawHtml()
-        const courseInfo = this.getCourseInfo(html);
-        const fileContent =  this.generateJsonContent(courseInfo)
-        fs.writeFileSync(filePath, JSON.stringify(fileContent))
+        const fileContent = this.analyzer.analyze(html, this.filePath)
+        console.log(fileContent)
+        fs.writeFileSync(this.filePath, fileContent)
     }
 
-    constructor() {
+    constructor(private url: string, private analyzer: Analyzer) {
         this.initSpiderProcess()
     }
 }
 
-const crowller = new Crowller()
+const url = 'https://www.zhuwang.cc/';
+
+const analyzer = new WebAnalyzer()
+const crowller = new Crowller(url, analyzer)
