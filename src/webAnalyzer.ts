@@ -16,7 +16,16 @@ interface Content {
     [propName: number]: Course[]
 }
 
-export default class WebAnalyzer implements Analyzer{
+export default class WebAnalyzer implements Analyzer {
+    private static instance: WebAnalyzer;
+
+    static getInstance() {
+        if (!WebAnalyzer.instance) {
+            WebAnalyzer.instance = new WebAnalyzer()
+        }
+        return WebAnalyzer.instance
+    }
+
     private getCourseInfo(html: string) {
         let courseInfos: Course[] = [];
         const $ = cheerio.load(html)
@@ -45,8 +54,11 @@ export default class WebAnalyzer implements Analyzer{
         return fileContent
     }
 
-    public analyze(html: string, filePath: string):string {
-        const courseInfo = this.getCourseInfo(html)
+    public analyze(html: string, filePath: string): string {
+        const courseInfo = this.getCourseInfo(html);
         return JSON.stringify(this.generateJsonContent(courseInfo, filePath))
+    }
+
+    private constructor() {
     }
 }

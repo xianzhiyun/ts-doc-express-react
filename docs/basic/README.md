@@ -561,18 +561,228 @@ class Circle extends  Geom{
 
 ```
 
+### 联合类型和类型保护
+
+类型在继承过程中只会找共有的属性和方法
+```typescript
+interface Bird {
+    fly:boolean,
+    sing:()=>{};
+}
+interface Dog {
+    fly:boolean,
+    bark:()=>{}
+}
+
+function trainAnial(animal:Bird | Dog) {
+    animal.fly
+}
+```
+
+### 通过类型断言实现类型保护
+
+```typescript
+interface Bird {
+    fly:boolean,
+    sing:()=>{};
+}
+interface Dog {
+    fly:boolean,
+    bark:()=>{}
+}
+
+function trainAnial(animal:Bird | Dog) {
+    if (animal.fly){
+        (animal as Bird).sing
+    }else{
+        (animal as Dog).bark
+    }
+}
+```
+
+### in 语法实现类型保护
+```typescript
+interface Bird {
+    fly:boolean,
+    sing:()=>{};
+}
+interface Dog {
+    fly:boolean,
+    bark:()=>{}
+}
+
+function trainAnialSecond(animal:Bird | Dog) {
+   if ('sing' in animal){
+       animal.sing
+   }else {
+       animal.bark
+   }
+}
+```
+
+#### typeof 实现类型保护
+```typescript
+function add(first:string | number,second:string | number) {
+    if (typeof first === 'string' || typeof second === 'string'){
+        return `${first}${second}`
+    }
+    return first + second
+}
+
+```
+
+#### 类具有instanceof 语法来做类型保护
+
+```typescript
+class NumberObj {
+    count: number = 3;
+}
+function addSecond(first:object | NumberObj, second:object| NumberObj) {
+    if (first instanceof NumberObj && second instanceof NumberObj){
+        return first.count + second.count
+    }
+    return  0
+}
+
+```
 
 
+###  枚举类型
+
+```typescript
+enum Status {
+    OFFLINE,
+    ONLINE,
+    DELETED
+}
+console.log(Status[0])
+// const Status = {
+//     OFFLINE = 0,
+//     ONLINE = 1,
+//     DELETED = 2
+// }
+
+function gerResult(status:number) {
+    if (status === Status.OFFLINE){
+        return  'offline'
+    }else if (status === Status.ONLINE){
+        return 'online'
+    }else if (status === Status.DELETED){
+        return 'deleted'
+    }
+}
+```
+
+### 泛型
+
+函数中使用泛型
+```typescript
+// 泛型 generic 泛指类型
+function join<T>(first:T,second:T) {
+    return `${first}${second}`
+}
+join<string>('1','1')
+
+// T[]
+function map<T>(params:Array<T>) {
+    return params
+}
+
+map<string>(['123'])
+```
 
 
+类中使用泛型
+```typescript
+class DataManager <T>{
+    constructor(private data: T[]) {}
+    getItem(index: number): T{
+        return this.data[index]
+    }
+}
+
+const dataManager = new DataManager<number>([123])
+dataManager.getItem(0)
+
+```
+
+类中使用泛型可以使用继承接口
+
+```typescript
+interface Item {
+    name:string
+}
+
+class DataManager <T extends Item>{
+    constructor(private data: T[]) {}
+    getItem(index: number): string{
+        return this.data[index].name
+    }
+}
+const dataManager = new DataManager([{name: 'dell'}])
+dataManager.getItem(0)
+```
+
+规定类型
+
+```typescript
+class DataManager <T extends number | string>{
+    constructor(private data: T[]) {}
+    getItem(index: number): T{
+        return this.data[index]
+    }
+}
+const dataManager = new DataManager(['dell'])
+dataManager.getItem(0)
+
+```
+
+使用泛型作为一个类型注解
+```typescript
+function hello<T>(params:T) {
+    return params
+}
+const func: <T>(params:T)=> T  = hello
+
+```
+
+泛型总keyof ，解决对象要求问题
+```typescript
+interface Person  {
+    name:string;
+    age:number;
+    gender:string;
+}
+class Teacher {
+    constructor(private info:Person) {}
+    getInfo<T extends keyof Person> (key:T):Person[T]{
+        return this.info[key]
+    }
+}
+const teacher = new Teacher({
+    name:'hello',
+    age: 18,
+    gender: 'male'
+})
+console.log(teacher.getInfo('name'))
+
+```
 
 
-
-
-
-
-
-
-
-
+### 命名控制
+```typescript
+namespace Home {
+    class Header {}
+    class Body {}
+    class Footer {}
+   export class Page {
+        constructor() {
+            new Header()
+            new Body()
+            new Footer()
+        }
+    }
+}
+new Home.Page()
+```
 

@@ -10,7 +10,7 @@ export interface Analyzer {
 class Crowller {
     private filePath = path.resolve(__dirname, '../data/course.json')
 
-    async getRawHtml() {
+    private async getRawHtml() {
         const result = await superagent.get(this.url).set({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
         });
@@ -18,7 +18,7 @@ class Crowller {
     }
 
 
-    async initSpiderProcess() {
+    private async initSpiderProcess() {
         const html = await this.getRawHtml()
         const fileContent = this.analyzer.analyze(html, this.filePath)
         console.log(fileContent)
@@ -32,5 +32,5 @@ class Crowller {
 
 const url = 'https://www.zhuwang.cc/';
 
-const analyzer = new WebAnalyzer()
+const analyzer = WebAnalyzer.getInstance()
 const crowller = new Crowller(url, analyzer)
