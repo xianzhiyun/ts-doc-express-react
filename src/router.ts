@@ -1,12 +1,23 @@
-import {Request, Response, Router} from 'express'
-import Crowller from './crowller'
-import WebAnalyzer from "./webAnalyzer";
 import fs from 'fs'
 import path from 'path'
+import {NextFunction, Request, Response, Router} from 'express'
+import Crowller from './utils/crowller'
+import WebAnalyzer from "./utils/webAnalyzer";
+import {getResponseData} from './utils/util'
 
 interface RequestBody extends Request {
     body: {
         password: string | undefined
+    }
+}
+
+// 检测登录中间件
+const checkLogin = (req: Request, res: Response, next: NextFunction) => {
+    const isLogin = req.session ? req.session.login : false
+    if (isLogin) {
+        next()
+    } else {
+        res.json(getResponseData(null, '请重新登录'))
     }
 }
 
@@ -17,7 +28,7 @@ const router = Router()
 
 
 router.get('/', (req: RequestBody, res: Response) => {
-    const isLogin = req.session ? req.session.login : false
+    const isLogin = req.session ? req.session.login : false;
     if (isLogin) {
         res.send(`
         <!DOCTYPE html>
@@ -50,10 +61,10 @@ router.get('/', (req: RequestBody, res: Response) => {
         </form>
         </body>
         </html>
-    `)
+        `)
     }
 })
-router.get('/loginout', (req: RequestBody, res: Response) => {
+router.get('/loginout', checkLogin, (req: RequestBody, res: Response) => {
     if (req.session) {
         req.session.login = undefined
     }
@@ -61,44 +72,30 @@ router.get('/loginout', (req: RequestBody, res: Response) => {
 })
 router.post('/login', (req: RequestBody, res: Response) => {
     const {password} = req.body
-    const isLogin = req.session ? req.session.login : false
-    if (isLogin) {
-        res.send(`登录成功`)
-    } else {
-        if (password === '123' && req.session) {
+    if (password === '123') {
+        if (req.session){
             req.session.login = true
-            // res.send(`登录成功`)
-            res.redirect('/')
-        } else {
-            // res.send(`密码错误`)
-            res.redirect('/')
         }
+        res.redirect('/')
+    } else {
+        res.redirect('/')
     }
+
 })
 
-router.get('/getData', (req: RequestBody, res: Response) => {
-    const isLogin = req.session ? req.session.login : false
-    if (isLogin) {
-        const url = 'https://www.zhuwang.cc/';
-        const analyzer = WebAnalyzer.getInstance()
-        new Crowller(url, analyzer)
-        res.send('数据已更新')
-    } else {
-        res.send(`请登录后进行爬去数据`)
-    }
+router.get('/getData', checkLogin, (req: RequestBody, res: Response) => {
+    const url = 'https://www.zhuwang.cc/';
+    const analyzer = WebAnalyzer.getInstance()
+    new Crowller(url, analyzer)
+    res.send('数据已更新')
 })
-router.get('/showData', (req: RequestBody, res: Response) => {
-    const isLogin = req.session ? req.session.login : false
-    if (isLogin) {
-        try {
-            const position = path.resolve(__dirname, '../data/course.json')
-            const result = fs.readFileSync(position, 'utf-8')
-            res.send(JSON.parse(result))
-        } catch {
-            res.send('尚未爬去内容')
-        }
-    } else {
-        res.send('请登录')
+router.get('/showData', checkLogin, (req: RequestBody, res: Response) => {
+    try {
+        const position = path.resolve(__dirname, '../data/course.json')
+        const result = fs.readFileSync(position, 'utf-8')
+        res.send(JSON.parse(result))
+    } catch {
+        res.send('尚未爬去内容')
     }
 
 })

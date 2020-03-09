@@ -4,7 +4,9 @@ import bodyParser from 'body-parser'
 import cookieSession from 'cookie-session'
 
 const app = express()
+// 解析请求发送的内容
 app.use(bodyParser.urlencoded({extended: false}))
+// 设置cookie-session
 app.use(cookieSession({
     name: 'session',
     keys: ['teacher dell'],
