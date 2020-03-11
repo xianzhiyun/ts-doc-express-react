@@ -1,7 +1,11 @@
 import express, {Request, Response, NextFunction} from 'express'
-import router from './router'
+// import router from './router'
 import bodyParser from 'body-parser'
 import cookieSession from 'cookie-session'
+import './controller/LoginController'
+import './controller/CrowllerController'
+import {router} from "./controller/decorator";
+
 
 const app = express()
 // 解析请求发送的内容

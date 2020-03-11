@@ -59,6 +59,5 @@ export default class WebAnalyzer implements Analyzer {
         return JSON.stringify(this.generateJsonContent(courseInfo, filePath))
     }
 
-    private constructor() {
-    }
+    private constructor() {}
 }

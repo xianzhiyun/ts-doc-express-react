@@ -786,3 +786,214 @@ namespace Home {
 new Home.Page()
 ```
 
+
+### 装饰器
+
+执行时间，类定义后就会执行
+
+```typescript
+function testDecorator(constructor:any) {
+    constructor.prototype.getName = () => {
+        console.log('hello')
+    }
+    // console.log('decorator')
+}
+@testDecorator
+class Test {}
+const test = new Test()
+```
+工厂模式
+
+```typescript
+function testDecorator(flag: boolean) {
+    if (flag) {
+        return function (constructor: any) {
+            constructor.prototype.getName = () => {
+                console.log('hello')
+            }
+        }
+    } else {
+        return function (constructor: any) {}
+    }
+
+}
+
+@testDecorator(true)
+class Test {}
+
+const test = new Test()
+```
+
+并不能友好获取装饰器中添加方法
+
+```typescript
+function testDecorator() {
+    return function<T extends new (...args: any[]) => any>(constructor: T) {
+        return class extends constructor {
+            name = 'lee';
+            getName() {
+                return this.name;
+            }
+        };
+    };
+}
+
+const Test = testDecorator()(
+    class {
+        name: string;
+        constructor(name: string) {
+            this.name = name;
+        }
+    }
+);
+
+const test = new Test('dell');
+console.log(test.getName());
+
+```
+
+### 方法装饰器
+
+```typescript
+
+// 普通方法，target 对应的是类的 prototype
+// 静态方法，target 对应的是类的构造函数
+
+function getNameDecorator(target: any, key: string, descriptor: PropertyDescriptor) {
+  // console.log(target, key);
+  // descriptor.writable = true;
+  descriptor.value = function() {
+    return 'decorator';
+  };
+}
+
+class Test {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  @getNameDecorator
+  getName() {
+    return this.name;
+  }
+}
+
+const test = new Test('dell');
+console.log(test.getName());
+
+```
+
+### get set 访问器实现
+
+```typescript
+function visitDecorator(target: any, key: string, descriptor: PropertyDescriptor) {
+  // descriptor.writable = false;
+}
+
+class Test {
+  private _name: string;
+  constructor(name: string) {
+    this._name = name;
+  }
+  get name() {
+    return this._name;
+  }
+  @visitDecorator
+  set name(name: string) {
+    this._name = name;
+  }
+}
+
+const test = new Test('dell');
+test.name = 'dell lee';
+console.log(test.name);
+
+```
+
+### 属性装饰器
+
+```typescript
+// function nameDecorator(target: any, key: string): any {
+//   const descriptor: PropertyDescriptor = {
+//     writable: false
+//   };
+//   return descriptor;
+// }
+
+// test.name = 'dell lee';
+
+// 修改的并不是实例上的 name， 而是原型上的 name
+function nameDecorator(target: any, key: string): any {
+  target[key] = 'lee';
+}
+
+// name 放在实例上
+class Test {
+  @nameDecorator
+  name = 'Dell';
+}
+
+const test = new Test();
+console.log((test as any).__proto__.name);
+
+```
+
+### 参数装饰器
+
+```typescript
+// 原型，方法名，参数所在的位置
+function paramDecorator(target: any, method: string, paramIndex: number) {
+  console.log(target, method, paramIndex);
+}
+
+class Test {
+  getInfo(name: string, @paramDecorator age: number) {
+    console.log(name, age);
+  }
+}
+
+const test = new Test();
+test.getInfo('Dell', 30);
+
+```
+
+### 工厂模式实现，捕获异常
+
+```typescript
+const userInfo: any = undefined;
+
+function catchError(msg: string) {
+  return function (target: any, key: string, descriptor: PropertyDescriptor) {
+    const fn = descriptor.value;
+    descriptor.value = function () {
+      try {
+        fn();
+      } catch (e) {
+        console.log(msg);
+      }
+    };
+  };
+}
+
+class Test {
+  @catchError('userInfo.name 不存在')
+  getName() {
+    return userInfo.name;
+  }
+  @catchError('userInfo.age 不存在')
+  getAge() {
+    return userInfo.age;
+  }
+  @catchError('userInfo.gender 不存在')
+  getGender() {
+    return userInfo.gender;
+  }
+}
+
+const test = new Test();
+test.getName();
+test.getAge();
+
+```
+
+
